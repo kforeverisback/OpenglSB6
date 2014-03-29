@@ -106,10 +106,6 @@ namespace sb6
 		if (major < 3)
 			return 0;
 
-		if (version.major < 3)
-			return -1;
-		return 0;
-
 		if (version.major == major)
 			return version.minor >= minor;
 		return version.major >= major;
@@ -117,12 +113,16 @@ namespace sb6
 	static void ErrCallBack(int errCode, const char* errString)
 	{
 		fprintf(stderr, errString);
+		fprintf(stderr, "\n");
 	}
 class application
 {
 	GLFWwindow* wnd;
 	GLFWmonitor* monitor;
 public:
+
+	GLFWwindow* getContextWindow() const { return wnd; }
+	GLFWmonitor* getCurrentMonitor() const { return monitor; }
 	application() {}
 	virtual ~application() {}
 	virtual void run(sb6::application* the_app)
@@ -145,14 +145,13 @@ public:
 
 #if !defined(USE_OPENGL_3_1)
 #if defined(_DEBUG)
-		//glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 #endif /* _DEBUG */
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #endif
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_SAMPLES, info.samples);
 		glfwWindowHint(GLFW_STEREO, info.flags.stereo ? GL_TRUE : GL_FALSE);
-		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
 		//MY OWN
 		glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -194,7 +193,7 @@ public:
 		//(info.flags.cursor ? glfwEnable : glfwDisable)(GLFW_MOUSE_CURSOR);
 		info.flags.stereo = (glfwGetWindowAttrib(wnd, GLFW_STEREO) ? 1 : 0);
 #if defined(USE_GLEW)
-		//glewExperimental = true;
+		glewExperimental = true;
 		GLenum err = glewInit();
 		if (err != GLEW_OK)
 		{
@@ -218,10 +217,6 @@ public:
 		{
 			if (gl3wIsSupported(4, 3))
 			{
-				void*ptr = glDebugMessageCallback;
-				ptr = glDebugMessageCallbackARB;
-				ptr = wglGetProcAddress((LPCSTR)"GetDebugMessageLogARBDebugMessageCallbackARB");
-				ptr = wglGetProcAddress((LPCSTR)"glCopyImageSubData"); 
 				glDebugMessageCallback(debug_callback, this);
 				glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 			}
