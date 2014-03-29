@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenglSB6", "OpenglSB6\OpenglSB6.vcxproj", "{1759AA44-03BA-4FB9-B721-331F4C95596D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sb6", "sb6\src\sb6\sb6.vcxproj", "{ADDFF1E2-C5D4-4217-A5B3-96ECED2C3584}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1759AA44-03BA-4FB9-B721-331F4C95596D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1759AA44-03BA-4FB9-B721-331F4C95596D}.Debug|Win32.Build.0 = Debug|Win32
+		{1759AA44-03BA-4FB9-B721-331F4C95596D}.Release|Win32.ActiveCfg = Release|Win32
+		{1759AA44-03BA-4FB9-B721-331F4C95596D}.Release|Win32.Build.0 = Release|Win32
+		{ADDFF1E2-C5D4-4217-A5B3-96ECED2C3584}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ADDFF1E2-C5D4-4217-A5B3-96ECED2C3584}.Debug|Win32.Build.0 = Debug|Win32
+		{ADDFF1E2-C5D4-4217-A5B3-96ECED2C3584}.Release|Win32.ActiveCfg = Release|Win32
+		{ADDFF1E2-C5D4-4217-A5B3-96ECED2C3584}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
