@@ -14,8 +14,11 @@ DefineObjectAs(GLuint, ShaderProgramId);
 
 const char* VS = "#version 430 core\n\
 layout(location = 0) in vec4 offset;\n\
+layout(location = 1) in vec4 color;\n\
+out vec4 vs_color;\n\
 void main(void)\n\
 {\n\
+	vs_color = color;\n\
 	const vec4 vertices[] = vec4[](vec4(0.25, -0.25, 0.5, 1.0),\n\
 		vec4(-0.25, -0.25, 0.5, 1.0),\n\
 		vec4(0.25, 0.25, 0.5, 1.0));\n\
@@ -23,17 +26,18 @@ void main(void)\n\
 }";
 
 const char* FS = "#version 430 core\n\
+				 in vec4 vs_color;\n\
 				 out vec4 colorOut;\n\
 				 void main(void)\n\
-				 {colorOut = vec4(0.0, 0.8, 1.0, 1.0);}";
+				 {colorOut = vs_color;}";
 
 class my_application : public sb6::application
 {
 public:
 	void render(double currenttime) override
 	{
-		const GLfloat red[] = { .2, .2, 0, 1 };
-		const GLfloat colors[] = { (float)sin(currenttime)*0.5f,
+		const GLfloat red[] = { .2f, .2f, 0, 1 };
+		GLfloat colors[] = { (float)sin(currenttime)*0.5f,
 			(float)cos(currenttime) * 0.5f ,
 			0,
 			1 };
@@ -43,6 +47,11 @@ public:
 									0,
 									0 };
 		glVertexAttrib4fv(0, attrib);
+		colors[1] += 0.1f;
+		colors[3] += 0.3f;
+		colors[0] += 0.5f;
+		colors[2] += 0.2f;
+		glVertexAttrib4fv(1, colors);
 		glUseProgram(m_shaderProgram);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 	}
@@ -124,7 +133,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		FILE_LOG("Failed to start KLog");
 	}
 	my_application* app = new my_application();
-	FILE_LOG("Test Log" << endl);
 	app->run(app);
 	delete app;
 	app = nullptr;
