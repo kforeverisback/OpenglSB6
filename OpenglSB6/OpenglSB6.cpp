@@ -4,32 +4,12 @@
 #include "stdafx.h"
 #include <sb6.h>
 
-const char* CHAPTER_TITLE = "OpenGL SuperBible 6: Chapter 3";
+const char CHAPTER_TITLE[]{"OpenGL SuperBible 6: Chapter 3"};
 
-#define DefineObjectAs(_T_, _X_)	typedef _T_ _X_
-DefineObjectAs(GLuint, VertexBufferObject);
-DefineObjectAs(GLuint, VertexArrayObject);
-DefineObjectAs(GLuint, ShaderId);
-DefineObjectAs(GLuint, ShaderProgramId);
-
-const char* VS = "#version 430 core\n\
-layout(location = 0) in vec4 offset;\n\
-layout(location = 1) in vec4 color;\n\
-out vec4 vs_color;\n\
-void main(void)\n\
-{\n\
-	vs_color = color;\n\
-	const vec4 vertices[] = vec4[](vec4(0.25, -0.25, 0.5, 1.0),\n\
-		vec4(-0.25, -0.25, 0.5, 1.0),\n\
-		vec4(0.25, 0.25, 0.5, 1.0));\n\
-			gl_Position = vertices[gl_VertexID] + offset;\n\
-}";
-
-const char* FS = "#version 430 core\n\
-				 in vec4 vs_color;\n\
-				 out vec4 colorOut;\n\
-				 void main(void)\n\
-				 {colorOut = vs_color;}";
+Typedef(GLuint, VertexBufferObject);
+Typedef(GLuint, VertexArrayObject);
+Typedef(GLuint, ShaderId);
+Typedef(GLuint, ShaderProgramId);
 
 class my_application : public sb6::application
 {
@@ -60,13 +40,46 @@ public:
 
 	void startup() override
 	{
-		CompileShaders(VS, FS);
+		const char *vert = nullptr, *frag = nullptr;
+		try
+		{
+			vert = cfg.getRoot()["shaders"]["vs"].c_str();
+			frag = cfg.getRoot()["shaders"]["ps"].c_str();
+		}
+		catch (const libconfig::SettingNotFoundException &nfex)
+		{
+			LOG_E("Cannot read the setting from config file\nException:\n" << nfex.what() );
+			return;
+		}
+		CompileShaders(vert, frag);
+		//CompileShaders(VS, FS);
 		glGenVertexArrays(1, &m_vertex_array_object);
 		glBindVertexArray(m_vertex_array_object);
 	}
 
 	void init() override
 	{
+		try
+		{
+			cfg.readFile("inputs.cfg");
+		}
+		catch (const libconfig::FileIOException &fioex)
+		{
+			LOG_E("I/O error while reading file.");
+			return;
+		}
+		catch (const libconfig::ParseException &pex)
+		{
+			/*g_flog_obj.getLogger<ige::FileLogger::e_logType::DBG>() << "Parse error at " << pex.getFile() << ":" << pex.getLine()
+				<< " - " << pex.getError();
+			g_flog_obj << ige::FileLogger::e_logType::DBG << "Parse error at " << pex.getFile() << ":" << pex.getLine()
+				<< " - " << pex.getError();*/
+			LOG_E("Parse error at " << pex.getFile() << ":" << pex.getLine()
+				<< " - " << pex.getError());
+			return;
+		}
+
+		LOG_D("Read inputs.cfg successfully");
 		sb6::application::init();
 		memset(info.title, 0, ARRAYSIZE(info.title));
 		memcpy_s(info.title, ARRAYSIZE(info.title), CHAPTER_TITLE, strlen(CHAPTER_TITLE));
@@ -92,7 +105,7 @@ public:
 		OutputDebugStringA("\n");
 #endif /* _WIN32 */
 
-		FILE_LOG(message << endl);
+		LOG_D(message << endl);
 	}
 #pragma endregion
 
@@ -114,24 +127,54 @@ public:
 		glAttachShader(m_shaderProgram, fragShader);
 		glLinkProgram(m_shaderProgram);
 
-		//Delete Shader object as the shaders are integrated in the Program
+		//Delete Shader object as the shaders are integrated in the Program through the Program Object
 		glDeleteShader(vertShader);
 		glDeleteShader(fragShader);
 
 	}
 
 private:
+	libconfig::Config cfg;
 	ShaderProgramId m_shaderProgram = 0;
 	VertexArrayObject m_vertex_array_object = 0;
 };
 
+ige::FileLogger g_flog_obj(GL_LOG_FILE);
 //DECLARE_MAIN(my_application);
-int _tmain(int argc, _TCHAR* argv[])
+int _tmain(int argc, const char* argv[])
 {
-	if (!start_klog())
+	///////////////////////////////
+	//////////KLOG////////////////
+	/*if (!start_klog())
 	{
-		FILE_LOG("Failed to start KLog");
+		LOG_E("Failed to start KLog");
 	}
+	else
+	{
+		LOG_D("Successfully started KLog");
+	}*/
+	/////////END KLOG//////////////
+	//////////////////////////////
+
+
+	////////////////////////////////
+	////////ige::FileLogger/////////
+	LOG_D("This is a logger " << 10 << "," << " TEsting");
+	////////ige::FileLogger/////////
+	///////////////////////////////
+
+	/////////////////////////////
+	//////////G2GLOG Init////////
+	/////////////////////////////
+	/**
+	g2LogWorker worker("Sb6_log", "");
+	//g2logWorker g2log(argv[0], "/tmp/whatever-directory-path-you-want/");
+	g2::initializeLogging(&worker);
+	LOG(INFO) << "This is a logging" << 20 << 2.444;
+	**/
+	/////////////////////////////
+	//////////G2GLOG Init End////
+	/////////////////////////////
 	my_application* app = new my_application();
 	app->run(app);
 	delete app;
