@@ -18,19 +18,19 @@ public:
 	{
 		const GLfloat red[] = { .2f, .2f, 0, 1 };
 		GLfloat colors[] = { (float)sin(currenttime)*0.5f,
-			(float)cos(currenttime) * 0.5f ,
+			(float)cos(currenttime) * 0.5f,
 			0,
 			1 };
 		glClearBufferfv(GL_COLOR, 0, colors);
 		const GLfloat attrib[] = { (float)sin(currenttime)*0.5f,
-									(float)cos(currenttime) * 0.5f,
-									0,
-									0 };
+			(float)cos(currenttime) * 0.5f,
+			0,
+			0 };
 		glVertexAttrib4fv(0, attrib);
-		colors[1] += 0.1f;
-		colors[3] += 0.3f;
-		colors[0] += 0.5f;
-		colors[2] += 0.2f;
+		colors[0] = 1 - colors[0];
+		colors[2] = 1 - colors[2];
+		colors[1] = 1 - colors[1];
+		colors[3] = 1 - colors[3];
 		glVertexAttrib4fv(1, colors);
 		glUseProgram(m_shaderProgram);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -43,12 +43,12 @@ public:
 		const char *vert = nullptr, *frag = nullptr;
 		try
 		{
-			vert = cfg.getRoot()["shaders"]["vs"].c_str();
-			frag = cfg.getRoot()["shaders"]["ps"].c_str();
+			vert = m_cfg.getRoot()["shaders"]["vs"].c_str();
+			frag = m_cfg.getRoot()["shaders"]["ps"].c_str();
 		}
 		catch (const libconfig::SettingNotFoundException &nfex)
 		{
-			LOG_E("Cannot read the setting from config file\nException:\n" << nfex.what() );
+			LOG_E("Cannot read the setting from config file\nException:\n" << nfex.what());
 			return;
 		}
 		CompileShaders(vert, frag);
@@ -61,7 +61,7 @@ public:
 	{
 		try
 		{
-			cfg.readFile("inputs.cfg");
+			m_cfg.readFile("inputs.cfg");
 		}
 		catch (const libconfig::FileIOException &fioex)
 		{
@@ -72,7 +72,7 @@ public:
 		{
 			/*g_flog_obj.getLogger<ige::FileLogger::e_logType::DBG>() << "Parse error at " << pex.getFile() << ":" << pex.getLine()
 				<< " - " << pex.getError();
-			g_flog_obj << ige::FileLogger::e_logType::DBG << "Parse error at " << pex.getFile() << ":" << pex.getLine()
+				g_flog_obj << ige::FileLogger::e_logType::DBG << "Parse error at " << pex.getFile() << ":" << pex.getLine()
 				<< " - " << pex.getError();*/
 			LOG_E("Parse error at " << pex.getFile() << ":" << pex.getLine()
 				<< " - " << pex.getError());
@@ -122,7 +122,7 @@ public:
 		glCompileShader(fragShader);
 
 		//Create and Link Program with the pipeline
-		m_shaderProgram =  glCreateProgram();
+		m_shaderProgram = glCreateProgram();
 		glAttachShader(m_shaderProgram, vertShader);
 		glAttachShader(m_shaderProgram, fragShader);
 		glLinkProgram(m_shaderProgram);
@@ -134,7 +134,7 @@ public:
 	}
 
 private:
-	libconfig::Config cfg;
+	libconfig::Config m_cfg;
 	ShaderProgramId m_shaderProgram = 0;
 	VertexArrayObject m_vertex_array_object = 0;
 };
@@ -147,11 +147,11 @@ int _tmain(int argc, const char* argv[])
 	//////////KLOG////////////////
 	/*if (!start_klog())
 	{
-		LOG_E("Failed to start KLog");
+	LOG_E("Failed to start KLog");
 	}
 	else
 	{
-		LOG_D("Successfully started KLog");
+	LOG_D("Successfully started KLog");
 	}*/
 	/////////END KLOG//////////////
 	//////////////////////////////
@@ -177,8 +177,7 @@ int _tmain(int argc, const char* argv[])
 	/////////////////////////////
 	my_application* app = new my_application();
 	app->run(app);
-	delete app;
-	app = nullptr;
+	SafeDelete(app);
 	return 0;
 }
 

@@ -23,11 +23,12 @@ using namespace std;
 #include "FileLogger.h"
 
 #define Typedef(_T_, _X_)	typedef _T_ _X_
+#define SafeDelete(_X_) if(_X_ != nullptr) {delete _X_; _X_ = nullptr;}
 
 #pragma region LOG_OPERATIONS
 #define GL_LOG_FILE "OpenglSB6.log"
 #include <ctime>
-enum class log_level {DBG, WARN, ERR};
+enum class log_level { DBG, WARN, ERR };
 
 static std::fstream g_File;
 
@@ -47,7 +48,6 @@ static bool start_klog() {
 }
 
 static bool Klog(std::fstream& file, log_level lvl, const char* function, int line){
-
 	file.open(GL_LOG_FILE, ios::app);
 	if (file.fail() || file.bad()) {
 		cerr << "ERROR: could not open " << GL_LOG_FILE << "%s for writing" << endl;
