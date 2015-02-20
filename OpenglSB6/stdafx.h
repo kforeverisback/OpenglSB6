@@ -93,3 +93,5 @@ extern ige::FileLogger g_flog_obj;
 #define LOG_E(_X_)  {g_flog_obj.getLogger<ige::FileLogger::e_logType::ERR>() << _X_ << endl;cerr << _X_ << endl;}
 #endif
 #pragma endregion
+
+#include <vmath.h>

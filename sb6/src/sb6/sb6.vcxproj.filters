@@ -11,4 +11,9 @@
       <UniqueIdentifier>{e6a14d53-5c2c-439a-ab3d-9c894cc4b5a6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\vmath.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

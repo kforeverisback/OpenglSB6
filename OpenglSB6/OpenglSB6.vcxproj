@@ -102,9 +102,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\g2glog\lib_g2logger_shared.vcxproj">
-      <Project>{d6426f81-34aa-455b-816f-a7e55c1dff1b}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\sb6\src\sb6\sb6.vcxproj">
       <Project>{addff1e2-c5d4-4217-a5b3-96eced2c3584}</Project>
     </ProjectReference>

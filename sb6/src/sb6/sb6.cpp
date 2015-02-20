@@ -37,27 +37,27 @@ sb6::application * sb6::application::app = 0;
 void * sb6GetProcAddress(const char * funcname)
 {
 #if defined(USE_GLEW)
-		return (void*)wglGetProcAddress((LPCSTR)funcname);
+	return (void*)wglGetProcAddress((LPCSTR)funcname);
 #else
-    return gl3wGetProcAddress(funcname);
+	return gl3wGetProcAddress(funcname);
 #endif
 }
 
 int sb6IsExtensionSupported(const char * extname)
 {
-    GLint numExtensions;
-    GLint i;
+	GLint numExtensions;
+	GLint i;
 
-    glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
+	glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
 
-    for (i = 0; i < numExtensions; i++)
-    {
-        const GLubyte * e = glGetStringi(GL_EXTENSIONS, i);
-        if (!strcmp((const char *)e, extname))
-        {
-            return 1;
-        }
-    }
+	for (i = 0; i < numExtensions; i++)
+	{
+		const GLubyte * e = glGetStringi(GL_EXTENSIONS, i);
+		if (!strcmp((const char *)e, extname))
+		{
+			return 1;
+		}
+	}
 
-    return 0;
+	return 0;
 }

@@ -16,6 +16,9 @@
     <ClCompile Include="sb6object.cpp" />
     <ClCompile Include="sb6shader.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\vmath.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{ADDFF1E2-C5D4-4217-A5B3-96ECED2C3584}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
