@@ -23,10 +23,16 @@ using namespace std;
 #include "FileLogger.h"
 
 #define Typedef(_T_, _X_)	typedef _T_ _X_
-#define SafeDelete(_X_) if(_X_ != nullptr) {delete _X_; _X_ = nullptr;}
+#define SafeDelete(_X_) if(nullptr!=_X_) {delete _X_; _X_ = nullptr;}
+
+#define NON_COPYABLE(_CLASS_)	_CLASS_(const _CLASS_&) = delete;\
+								_CLASS_& operator=(const _CLASS_&) = delete
 
 #pragma region LOG_OPERATIONS
 #define GL_LOG_FILE "OpenglSB6.log"
+
+#ifndef FILELOGGER_HPP
+
 #include <ctime>
 enum class log_level { DBG, WARN, ERR };
 
@@ -75,7 +81,6 @@ static bool Klog(std::fstream& file, log_level lvl, const char* function, int li
 	return true;
 }
 
-#ifndef FILELOGGER_HPP
 #if !defined(DISABLE_LOG)
 #define LOG_D(_X_)  {if(Klog(g_File, log_level::DBG, __FUNCTION__, __LINE__)){g_File << _X_ << endl; g_File.close();} cout << _X_ << endl;}
 #define LOG_W(_X_)  {if(Klog(g_File, log_level::WARN, __FUNCTION__, __LINE__)){g_File << _X_ << endl;g_File.close();} cout << _X_ << endl;}

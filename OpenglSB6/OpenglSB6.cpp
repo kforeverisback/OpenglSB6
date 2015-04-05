@@ -4,47 +4,88 @@
 #include "stdafx.h"
 #include <sb6.h>
 
-const char CHAPTER_TITLE[]{"OpenGL SuperBible 6: Chapter 3"};
+const char CHAPTER_TITLE[]{"OpenGL SuperBible 6 - Chapter 5: Data"};
 
 Typedef(GLuint, VertexBufferObject);
 Typedef(GLuint, VertexArrayObject);
 Typedef(GLuint, ShaderId);
 Typedef(GLuint, ShaderProgramId);
 
+#define SATURATE_TO_1(_X_) (_X_ - (int)_X_)
 class my_application : public sb6::application
 {
 public:
+	my_application() : sb6::application(){};
+	my_application(const my_application&) = delete;
+	my_application& operator=(const my_application&) = delete;
+
+	///3. Called Third
 	void render(double currenttime) override
 	{
-		const GLfloat red[] = { .2f, .2f, 0, 1 };
-		GLfloat colors[] = { (float)sin(currenttime)*0.5f,
-			(float)cos(currenttime) * 0.5f,
+		////////////////////////////////////////////////////////
+		//SIMPLE Back Colorization//////////////////////////////
+		GLfloat colors[] = { (float)sin(currenttime)*0.5f + 0.5,
+			(float)cos(currenttime) * 0.5f + 0.5,
 			0,
 			1 };
 		glClearBufferfv(GL_COLOR, 0, colors);
-		const GLfloat attrib[] = { (float)sin(currenttime)*0.5f,
-			(float)cos(currenttime) * 0.5f,
-			0,
-			0 };
-		glVertexAttrib4fv(0, attrib);
+		////////////////////////////////////////////////////////
+
+		////////////////////////////////////////////////////////
+		//Fragment Shader data pass/////////////////////////////
 		colors[0] = 1 - colors[0];
 		colors[2] = 1 - colors[2];
 		colors[1] = 1 - colors[1];
 		colors[3] = 1 - colors[3];
 		glVertexAttrib4fv(1, colors);
+		///////////////////////////////////////////////////////
+
+
+		///////////////////////////////////////////////
+		//Testing to write the buffer at runtime :D
+		if (0 == (((int)currenttime) % 5))
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, vbo_vertex_offset);
+			float* vbo_vertex_offset_data = (float*)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_WRITE);
+			vbo_vertex_offset_data[0] += .05;
+			glUnmapBuffer(GL_ARRAY_BUFFER);
+			vbo_vertex_offset_data[0] = vbo_vertex_offset_data[0] - (int)vbo_vertex_offset_data[0];
+			LOG_D(vbo_vertex_offset_data[0]);
+		}
+		//Test End
+		///////////////////////////////////////////
+
 		glUseProgram(m_shaderProgram);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 	}
 
+	VertexBufferObject vbo_vertex_offset = -1;
 #pragma region Initialization, Startup and Shutdown
 
+	///2. Called Second
 	void startup() override
 	{
 		const char *vert = nullptr, *frag = nullptr;
 		try
 		{
-			vert = m_cfg.getRoot()["shaders"]["vs"].c_str();
-			frag = m_cfg.getRoot()["shaders"]["ps"].c_str();
+			vert = (*res_data)["data_shader"]["vs"].c_str();
+			frag = (*res_data)["data_shader"]["ps"].c_str();
+			libconfig::Setting &data_offset_settings = (*res_data)["data_offset"];
+			if (data_offset_settings.isArray())
+			{
+				int ll = data_offset_settings.getLength();
+				vector<float> data_offset(ll);
+				for (int i = data_offset_settings.getLength() - 1;
+					i >= 0;
+					i--)
+				{
+					float f = data_offset_settings[i];
+					data_offset[i] =f;
+				}
+				vbo_vertex_offset = CreateBuffers(data_offset);
+				//vbo_color = CreateBuffers(data_color);
+
+			}
 		}
 		catch (const libconfig::SettingNotFoundException &nfex)
 		{
@@ -55,13 +96,20 @@ public:
 		//CompileShaders(VS, FS);
 		glGenVertexArrays(1, &m_vertex_array_object);
 		glBindVertexArray(m_vertex_array_object);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vbo_vertex_offset);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+		glEnableVertexAttribArray(0);
 	}
 
+	///1. Called First
 	void init() override
 	{
 		try
 		{
 			m_cfg.readFile("inputs.cfg");
+			res_data = &m_cfg.getRoot()["data"];
 		}
 		catch (const libconfig::FileIOException &fioex)
 		{
@@ -70,10 +118,6 @@ public:
 		}
 		catch (const libconfig::ParseException &pex)
 		{
-			/*g_flog_obj.getLogger<ige::FileLogger::e_logType::DBG>() << "Parse error at " << pex.getFile() << ":" << pex.getLine()
-				<< " - " << pex.getError();
-				g_flog_obj << ige::FileLogger::e_logType::DBG << "Parse error at " << pex.getFile() << ":" << pex.getLine()
-				<< " - " << pex.getError();*/
 			LOG_E("Parse error at " << pex.getFile() << ":" << pex.getLine()
 				<< " - " << pex.getError());
 			return;
@@ -133,8 +177,32 @@ public:
 
 	}
 
+	VertexBufferObject CreateBuffers(const vector<float>& vals)
+	{
+		size_t sizeOfBuffer = vals.size() * sizeof(float);
+		GLboolean unmapped = 0;
+		VertexBufferObject vbo = -1;
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeOfBuffer, vals.data(), GL_STATIC_DRAW);
+		return vbo;
+		/*void* ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+		if (nullptr == ptr)
+		goto FINISH;
+
+		memcpy_s(ptr, sizeOfBuffer, vals.data(), vals.size() * sizeof(float));
+		unmapped = glUnmapBuffer(GL_ARRAY_BUFFER);*/
+	FINISH:
+		return (unmapped == 1) ? vbo : -1;
+	}
+
 private:
+	////Resources
 	libconfig::Config m_cfg;
+	libconfig::Setting* res_data;
+	////Resources End
+
+
 	ShaderProgramId m_shaderProgram = 0;
 	VertexArrayObject m_vertex_array_object = 0;
 };
