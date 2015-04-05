@@ -18,7 +18,7 @@ namespace ige {
 
 		//explicit FileLogger(const char *engine_version, const char *fname = "OpenglSB6.log")
 		// ctor (remove parameters if you don´t need them)
-		explicit FileLogger(const char *fname = "OpenglSB6.log")
+		explicit FileLogger(const char *fname = "ExampleLogFile.log")
 			: numWarnings(0U),
 			numErrors(0U)
 		{
